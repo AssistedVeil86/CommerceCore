@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: CommerceCore
+
+  cache:
+    type: redis
+    host: localhost
+    port: ${REDIS_PORT:6379}
+    redis:
+      time-to-live: 60000
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3308/commercecore}
+    username: ${DB_USER:commercecoreadmin}
+    password: ${DB_USER_PASS:commercecoreSuPerPasS12$}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  properties:
+    hibernate:
+      format_sql: true
+      dialect: org.hibernate.dialect.MySQL8Dialect
+
+woo:
+  base-url: ${WOO_BASEURL:http://localhost:8000}
+  consumer-key: ${CONSUMER-KEY:ck_a8a9335ee90075b579522c9ac362b364b0a0b948}
+  consumer-secret: ${CONSUMER-SECRET:cs_9e150ae9694568baf68e71f1c1fd8af6031facdc}
