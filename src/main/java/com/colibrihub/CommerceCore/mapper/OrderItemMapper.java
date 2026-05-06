@@ -4,12 +4,24 @@ import com.colibrihub.CommerceCore.dto.Request.OrderItemRequest;
 import com.colibrihub.CommerceCore.dto.Response.OrderItemResponse;
 import com.colibrihub.CommerceCore.entity.OrderItem;
 import com.colibrihub.CommerceCore.entity.Product;
+import com.colibrihub.CommerceCore.event.ProductItemEvent;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
 public class OrderItemMapper {
+
+    public ProductItemEvent toProductItemEvent(OrderItem orderItem) {
+        var productItemEvent = new ProductItemEvent();
+
+        productItemEvent.setName(orderItem.getProduct().getName());
+        productItemEvent.setQuantity(orderItem.getQuantity());
+        productItemEvent.setSku(orderItem.getProduct().getSku());
+        productItemEvent.setPrice(orderItem.getUnitPrice());
+
+        return productItemEvent;
+    }
 
     public OrderItem toEntity(OrderItemRequest req, Product product) {
         var entity = new OrderItem();

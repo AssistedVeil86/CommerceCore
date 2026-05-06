@@ -2,6 +2,13 @@ spring:
   application:
     name: CommerceCore
 
+  rabbitmq:
+    host: vulture.rmq.cloudamqp.com
+    port: 5672
+    username: kwsdttsn
+    password: kn6ivH9l5qbEzjmNKsD1GCzVZBZLQMij
+    virtual-host: kwsdttsn
+
   cache:
     type: redis
     host: localhost
@@ -23,6 +30,12 @@ spring:
     hibernate:
       format_sql: true
       dialect: org.hibernate.dialect.MySQL8Dialect
+
+app:
+  rabbitmq:
+    routing-key: order.confirmed
+    exchange: orders.exchange
+    queue: notifications.queue
 
 woo:
   base-url: ${WOO_BASEURL:http://localhost:8000}

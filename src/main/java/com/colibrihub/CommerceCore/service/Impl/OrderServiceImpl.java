@@ -10,11 +10,14 @@ import com.colibrihub.CommerceCore.dto.Response.PagedResponse;
 import com.colibrihub.CommerceCore.entity.OrderItem;
 import com.colibrihub.CommerceCore.entity.Product;
 import com.colibrihub.CommerceCore.enums.OrderStatus;
+import com.colibrihub.CommerceCore.event.OrderConfirmedEvent;
+import com.colibrihub.CommerceCore.event.ProductItemEvent;
 import com.colibrihub.CommerceCore.mapper.OrderItemMapper;
 import com.colibrihub.CommerceCore.mapper.OrderMapper;
 import com.colibrihub.CommerceCore.repository.OrderRepository;
 import com.colibrihub.CommerceCore.repository.ProductRepository;
 import com.colibrihub.CommerceCore.service.InvoiceService;
+import com.colibrihub.CommerceCore.service.OrderEventPublisher;
 import com.colibrihub.CommerceCore.service.OrderService;
 import com.colibrihub.CommerceCore.service.ProductService;
 import jakarta.transaction.Transactional;
@@ -36,17 +39,20 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderEventPublisher publisher;
 
     public OrderServiceImpl(
             ProductService productService, InvoiceService invoiceService,
             OrderRepository orderRepository, ProductRepository productRepository,
-            OrderMapper orderMapper, OrderItemMapper orderItemMapper) {
+            OrderMapper orderMapper, OrderItemMapper orderItemMapper,
+            OrderEventPublisher publisher) {
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
+        this.publisher = publisher;
     }
 
     @Override
@@ -74,6 +80,16 @@ public class OrderServiceImpl implements OrderService {
 
         if (req.getOrderStatus() == OrderStatus.CONFIRMED) {
             invoiceService.createInvoice(order);
+
+            List<ProductItemEvent> products = new ArrayList<>();
+
+            order.getOrderItems().forEach(item -> {
+                var productEventItem = orderItemMapper.toProductItemEvent(item);
+                products.add(productEventItem);
+            });
+
+            var event = new OrderConfirmedEvent(order, products);
+            publisher.publishConfirmedOrder(event);
         }
 
         order.setOrderStatus(req.getOrderStatus());
